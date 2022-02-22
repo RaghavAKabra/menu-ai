@@ -1,98 +1,49 @@
-import { Container, Switch, withStyles } from "@material-ui/core";
-import { grey } from "@material-ui/core/colors";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import "./App.css";
-import Definitions from "./components/Definitions/Definitions";
-import Footer from "./components/Footer/Footer";
-import Header from "./components/Header/Header";
+import { useState, useEffect } from "react"
+import alanBtn from '@alan-ai/alan-sdk-web';
 
-function App() {
-  const [word, setWord] = useState("");
-  const [meanings, setMeanings] = useState([]);
-  const [category, setCategory] = useState("en");
-  const [LightTheme, setLightTheme] = useState(false);
 
-  const dictionaryApi = async () => {
-    try {
-      const data = await axios.get(
-        `https://api.dictionaryapi.dev/api/v2/entries/${category}/${word}`
-      );
-      setMeanings(data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+var  App = () =>  {
+var [cart, setcart] = useState([])
+var [menuItems, setmenuItems] = useState([])
 
-  console.log(meanings);
 
-  useEffect(() => {
-    dictionaryApi();
-    // eslint-disable-next-line
-  }, [word, category]);
+useEffect(() => {
+  alanBtn({
+      key: '6273caa54122166263219bc6a734818b2e956eca572e1d8b807a3e2338fdd0dc/stage',
+      onCommand: (commandData) => {
+        if (commandData.command === 'getMenu') {
+         setmenuItems(commandData.data)
+        } else if (commandData.command === 'getMenu') {
+         setmenuItems(commandData.data)
+        }
+      }
+  });
+}, []);
 
-  const PurpleSwitch = withStyles({
-    switchBase: {
-      color: grey[50],
-      "&$checked": {
-        color: grey[900],
-      },
-      "&$checked + $track": {
-        backgroundColor: grey[500],
-      },
-    },
-    checked: {},
-    track: {},
-  })(Switch);
 
-  return (
-    <div
-      className="App"
-      style={{
-        height: "100vh",
-        backgroundColor: LightTheme ? "#fff" : "#282c34",
-        color: LightTheme ? "black" : "white",
-        transition: "all 0.5s linear",
-      }}
-    >
-      <Container
-        maxWidth="md"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          justifyContent: "space-evenly",
-        }}
-      >
-        <div
-          style={{ position: "absolute", top: 0, right: 15, paddingTop: 10 }}
-        >
-          <span>{LightTheme ? "Dark" : "Light"} Mode</span>
-          <PurpleSwitch
-            checked={LightTheme}
-            onChange={() => setLightTheme(!LightTheme)}
-          />
-        </div>
-        <Header
-          setWord={setWord}
-          category={category}
-          setCategory={setCategory}
-          word={word}
-          setMeanings={setMeanings}
-          LightTheme={LightTheme}
-        />
-        {meanings && (
-          <Definitions
-            meanings={meanings}
-            word={word}
-            LightTheme={LightTheme}
-            category={category}
-          />
-        )}
-      </Container>
-      <Footer />
-    </div>
-  );
+
+
+
+var addtocart = (menuItem) => {
+  setcart((oldcart) => {
+    return [...oldcart, menuItem]
+  })
 }
+  return <div className="App">
+   <h2>Menu  Price   Category</h2>
+     {menuItems.map((menuItem) => (
+        <li key={menuItem.name}>
+          {menuItem.name} - ${menuItem.price} - {menuItem.category}
+        <button onClick={() => addtocart(menuItem)}>Add to cart</button>
+        </li>
+     ))}
 
+<h3>Cart</h3>
+{cart.map((cartItem) => (
+        <li key={cartItem.name}>
+          {cartItem.name} - ${cartItem.price} - {cartItem.category}
+       </li>
+      ))}
+  </div>
+}
 export default App;
